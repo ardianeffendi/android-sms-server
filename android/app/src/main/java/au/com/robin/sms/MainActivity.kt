@@ -4,9 +4,11 @@ import android.Manifest
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Bundle
+import android.util.Log
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
 import au.com.robin.sms.databinding.ActivityMainBinding
 
 class MainActivity : AppCompatActivity() {
@@ -22,13 +24,13 @@ class MainActivity : AppCompatActivity() {
             val phoneNo = smsInterfaceBinding.etPhoneNo.text?.toString()
             val message = smsInterfaceBinding.etMessage.text?.toString()
 
-            // create an intent to let client choose which sim card slot
-            // for now, we use sim card 2. Normally, user will be shown options to choose from.
-            val intent = Intent()
-            intent.putExtra("slot", 1)
-
             // Check for permission
             if (checkPermission()) {
+                // create an intent to let client choose which sim card slot
+                // for now, we use sim card 2. Normally, user will be shown options to choose from.
+                val intent = Intent()
+                intent.putExtra("slot", 1)
+                Log.d("onStart, button", "Sending SMS")
                 val smsManager = SmsSend.getSmsManager(this, intent)
                 smsManager?.sendTextMessage(phoneNo, null, message, null, null)
             } else {
@@ -39,9 +41,9 @@ class MainActivity : AppCompatActivity() {
 
     private fun checkPermission(): Boolean {
         val sendSmsPermission =
-            ActivityCompat.checkSelfPermission(this, Manifest.permission.SEND_SMS)
+            ContextCompat.checkSelfPermission(this, Manifest.permission.SEND_SMS)
         val readPhoneStatePermission =
-            ActivityCompat.checkSelfPermission(this, Manifest.permission.READ_PHONE_STATE)
+            ContextCompat.checkSelfPermission(this, Manifest.permission.READ_PHONE_STATE)
 
         return sendSmsPermission == PackageManager.PERMISSION_GRANTED && readPhoneStatePermission == PackageManager.PERMISSION_GRANTED
     }
