@@ -6,13 +6,22 @@ plugins {
 def PACKAGE_NAME = 'au.com.robin.sms'
 android {
     namespace PACKAGE_NAME
+
+    /*
+     Full list of SDK release notes: https://developer.android.com/tools/releases/platforms.
+
+     Guide for versioning: minSdkVersion <= targetSdkVersion <= compileSdkVersion
+
+     Version 34 is used to support features that are available in the newest version which is 34,
+     as well as to support all the prior version.
+     */
     compileSdk 34
 
     defaultConfig {
         applicationId PACKAGE_NAME
-        minSdk 24
-        targetSdk 34
-        versionCode 1
+        minSdk 14 // earliest version that app can run on
+        targetSdk 34 // specifies that app has been tested up to this version
+        versionCode 1 // internal version number
         versionName "1.0"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
