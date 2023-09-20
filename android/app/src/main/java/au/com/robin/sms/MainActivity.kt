@@ -5,32 +5,47 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Bundle
 import android.util.Log
+import android.widget.Button
+import android.widget.EditText
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
-import au.com.robin.sms.databinding.ActivityMainBinding
 
 class MainActivity : AppCompatActivity() {
-    private lateinit var smsInterfaceBinding: ActivityMainBinding
-    private val PERMISSION_REQUEST_CODE = 1
+
+    /**
+     * Constant variables
+     */
+    companion object {
+        const val PERMISSION_REQUEST_CODE = 1
+        const val SIM_SLOT = "slot"
+        const val SIM_SLOT_ONE = 0 // SIM slot number 1 in a multi-sim phone.
+    }
+
+    /**
+     * Declare variables with lateinit that are `not-null` outside constructor.
+     */
+    private lateinit var btSend: Button
+    private lateinit var etPhoneNo: EditText
+    private lateinit var etMessage: EditText
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        smsInterfaceBinding = ActivityMainBinding.inflate(layoutInflater)
-        val view = smsInterfaceBinding.root
-        setContentView(view)
+        setContentView(R.layout.activity_main)
 
-        smsInterfaceBinding.btSend.setOnClickListener {
-            val phoneNo = smsInterfaceBinding.etPhoneNo.text?.toString()
-            val message = smsInterfaceBinding.etMessage.text?.toString()
+        btSend = findViewById(R.id.bt_send)
+        etPhoneNo = findViewById(R.id.et_phoneNo)
+        etMessage = findViewById(R.id.et_message)
+
+        btSend.setOnClickListener {
+            val phoneNo = etPhoneNo.text?.toString()
+            val message = etMessage.text?.toString()
 
             // Check for permission
             if (checkPermission()) {
-                // create an intent to let client choose which sim card slot
-                // for now, we use sim card 2. Normally, user will be shown options to choose from.
                 val intent = Intent()
-                intent.putExtra("slot", 1)
-                Log.d("onStart, button", "Sending SMS")
+                intent.putExtra(SIM_SLOT, SIM_SLOT_ONE)
                 val smsManager = SmsSend.getSmsManager(this, intent)
                 smsManager?.sendTextMessage(phoneNo, null, message, null, null)
             } else {
@@ -66,4 +81,5 @@ class MainActivity : AppCompatActivity() {
             Toast.makeText(this, "Permission denied. SMS can't be sent!", Toast.LENGTH_SHORT).show()
         }
     }
+
 }
