@@ -9,26 +9,37 @@ android {
 
     /*
      Full list of SDK release notes: https://developer.android.com/tools/releases/platforms.
+     */
 
-     Guide for versioning: minSdkVersion <= targetSdkVersion <= compileSdkVersion
-
-     Version 34 is used to support features that are available in the newest version which is 34,
-     as well as to support all the prior version.
+    /**
+     * compileSdk is the SDK Platform version that Android uses to compile. It is purely used
+     * at compile time so it is not included in the APK. It helps generate new compiler warnings or
+     * errors.
      */
     compileSdk 34
 
     defaultConfig {
         applicationId PACKAGE_NAME
-        minSdk 14 // earliest version that app can run on
+        minSdk 14 // the oldest version that app can run on
+
+        /**
+         * targetSdk is used for Android system to turn on specific (new) behavior changes. For instance,
+         * `Runtime Permissions` that were introduced starting from Android 6.0 (API Level 23).
+         * According to that example, if we had set `targetSdk` < 23, app wouldn't ask for some
+         * permission in runtime.
+         *
+         * Currently, existing apps (across mobile, Android Auto, Android TV) must target
+         * API level 31 or above by August 31, 2023 (target API 30 or up API level 33 for Wear OS).
+         *
+         * Refer to the link below:
+         * https://support.google.com/googleplay/android-developer/answer/11926878?hl=en#:~:text=App%20availability%20requirements,level%2033%20for%20Wear%20OS).
+         */
         targetSdk 34 // specifies that app has been tested up to this version
+
         versionCode 1 // internal version number
         versionName "1.0"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
-    }
-
-    buildFeatures {
-        viewBinding = true
     }
 
     buildTypes {
