@@ -4,7 +4,6 @@ import android.Manifest
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Bundle
-import android.util.Log
 import android.widget.Button
 import android.widget.EditText
 import android.widget.Toast
@@ -46,7 +45,7 @@ class MainActivity : AppCompatActivity() {
             if (checkPermission()) {
                 val intent = Intent()
                 intent.putExtra(SIM_SLOT, SIM_SLOT_ONE)
-                val smsManager = SmsSend.getSmsManager(this, intent)
+                val smsManager = getSmsManager(this, intent)
                 smsManager?.sendTextMessage(phoneNo, null, message, null, null)
             } else {
                 requestPermission()
