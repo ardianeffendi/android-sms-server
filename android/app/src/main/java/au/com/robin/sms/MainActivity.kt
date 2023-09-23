@@ -2,14 +2,13 @@ package au.com.robin.sms
 
 import android.Manifest
 import android.content.Intent
-import android.content.pm.PackageManager
 import android.os.Bundle
+import android.util.Log
 import android.widget.Button
 import android.widget.EditText
 import android.widget.Toast
+import androidx.annotation.RequiresPermission
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.app.ActivityCompat
-import androidx.core.content.ContextCompat
 
 class MainActivity : AppCompatActivity() {
 
@@ -17,7 +16,6 @@ class MainActivity : AppCompatActivity() {
      * Constant variables
      */
     companion object {
-        const val PERMISSION_REQUEST_CODE = 1
         const val SIM_SLOT = "slot"
         const val SIM_SLOT_ONE = 0 // SIM slot number 1 in a multi-sim phone.
     }
@@ -29,6 +27,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var etPhoneNo: EditText
     private lateinit var etMessage: EditText
 
+    @RequiresPermission(allOf = [Manifest.permission.READ_PHONE_STATE, Manifest.permission.SEND_SMS])
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
@@ -42,32 +41,16 @@ class MainActivity : AppCompatActivity() {
             val message = etMessage.text?.toString()
 
             // Check for permission
-            if (checkPermission()) {
+            if (isPermissionGranted(this)) {
                 val intent = Intent()
+                // Default to SIM slot 1 for now
                 intent.putExtra(SIM_SLOT, SIM_SLOT_ONE)
                 val smsManager = getSmsManager(this, intent)
                 smsManager?.sendTextMessage(phoneNo, null, message, null, null)
             } else {
-                requestPermission()
+                requestPermission(this)
             }
         }
-    }
-
-    private fun checkPermission(): Boolean {
-        val sendSmsPermission =
-            ContextCompat.checkSelfPermission(this, Manifest.permission.SEND_SMS)
-        val readPhoneStatePermission =
-            ContextCompat.checkSelfPermission(this, Manifest.permission.READ_PHONE_STATE)
-
-        return sendSmsPermission == PackageManager.PERMISSION_GRANTED && readPhoneStatePermission == PackageManager.PERMISSION_GRANTED
-    }
-
-    private fun requestPermission() {
-        ActivityCompat.requestPermissions(
-            this,
-            arrayOf(Manifest.permission.SEND_SMS, Manifest.permission.READ_PHONE_STATE),
-            PERMISSION_REQUEST_CODE
-        )
     }
 
     override fun onRequestPermissionsResult(
