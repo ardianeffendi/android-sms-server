@@ -1,0 +1,75 @@
+plugins {
+    id 'com.android.application'
+    id 'org.jetbrains.kotlin.android'
+}
+
+def PACKAGE_NAME = 'au.com.robin.sms'
+android {
+    namespace PACKAGE_NAME
+
+    /*
+     Full list of SDK release notes: https://developer.android.com/tools/releases/platforms.
+     */
+
+    /**
+     * compileSdk is the SDK Platform version that Android uses to compile. It is purely used
+     * at compile time so it is not included in the APK. It helps generate new compiler warnings or
+     * errors.
+     */
+    compileSdk 34
+
+    defaultConfig {
+        applicationId PACKAGE_NAME
+        minSdk 14 // the oldest version that app can run on
+
+        /**
+         * targetSdk is used for Android system to turn on specific (new) behavior changes. For instance,
+         * `Runtime Permissions` that were introduced starting from Android 6.0 (API Level 23).
+         * According to that example, if we had set `targetSdk` < 23, app wouldn't ask for some
+         * permission in runtime.
+         *
+         * Currently, existing apps (across mobile, Android Auto, Android TV) must target
+         * API level 31 or above by August 31, 2023 (target API 30 or up API level 33 for Wear OS).
+         *
+         * Refer to the link below:
+         * https://support.google.com/googleplay/android-developer/answer/11926878?hl=en#:~:text=App%20availability%20requirements,level%2033%20for%20Wear%20OS).
+         */
+        targetSdk 34 // specifies that app has been tested up to this version
+
+        versionCode 1 // internal version number
+        versionName "1.0"
+
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+    }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+    kotlinOptions {
+        jvmTarget = '1.8'
+    }
+}
+
+// Variables declaration for dependencies' version
+def appCompatVersion = '1.6.1'
+def materialComponentVersion = '1.9.0'
+def coreKtxVersion = '1.12.0'
+def constrainLayoutVersion = '2.1.4'
+
+dependencies {
+    implementation "androidx.appcompat:appcompat:$appCompatVersion"
+    implementation "com.google.android.material:material:$materialComponentVersion"
+    implementation "androidx.core:core-ktx:$coreKtxVersion"
+    implementation "androidx.constraintlayout:constraintlayout:$constrainLayoutVersion"
+    implementation "androidx.core:core-ktx:$coreKtxVersion"
+    testImplementation "junit:junit:4.13.2"
+    androidTestImplementation "androidx.test.ext:junit:1.1.5"
+    androidTestImplementation "androidx.test.espresso:espresso-core:3.5.1"
+}
