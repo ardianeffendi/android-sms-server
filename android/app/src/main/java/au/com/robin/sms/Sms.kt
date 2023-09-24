@@ -32,16 +32,18 @@ fun getSmsManager(context: Context, intent: Intent): SmsManager? {
         }
     }
 
-    //
+    // Check the SIM slot for multi-SIM device using SubscriptionManager (from SDK version >= 22)
     return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP_MR1) {
         val sm: SubscriptionManager? =
             context.getSystemService(Context.TELEPHONY_SUBSCRIPTION_SERVICE) as? SubscriptionManager
         sm?.activeSubscriptionInfoList?.forEach { subscriptionInfo ->
             if (subscriptionInfo.simSlotIndex == slot) {
                 return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                    // Devices with SDK version >= 31
                     context.getSystemService(SmsManager::class.java)
                         .createForSubscriptionId(subscriptionInfo.subscriptionId)
                 } else {
+                    // Devices with SDK version < 31
                     SmsManager.getSmsManagerForSubscriptionId(subscriptionInfo.subscriptionId)
                 }
             }
@@ -50,7 +52,7 @@ fun getSmsManager(context: Context, intent: Intent): SmsManager? {
     } else {
         // Android does not support multi-SIM from the SDK for version < 22
         // For now, this is default to SmsManager.getDefault()
-        // Alternative for this is,
+        // Alternative to this is,
         // https://stackoverflow.com/questions/14517338/android-check-whether-the-phone-is-dual-sim
         SmsManager.getDefault()
     }
