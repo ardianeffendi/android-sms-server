@@ -3,38 +3,28 @@ package au.com.robin.sms
 import android.Manifest
 import android.content.Intent
 import android.os.Bundle
-import android.util.Log
 import android.widget.Button
 import android.widget.EditText
 import android.widget.Toast
 import androidx.annotation.RequiresPermission
 import androidx.appcompat.app.AppCompatActivity
 
+// Constants
+private const val SIM_SLOT = "slot"
+private const val SIM_SLOT_ONE = 0
+private const val SIM_SLOT_TWO = 1
+
 class MainActivity : AppCompatActivity() {
-
-    /**
-     * Constant variables
-     */
-    companion object {
-        const val SIM_SLOT = "slot"
-        const val SIM_SLOT_ONE = 0 // SIM slot number 1 in a multi-sim phone.
-    }
-
-    /**
-     * Declare variables with lateinit that are `not-null` outside constructor.
-     */
-    private lateinit var btSend: Button
-    private lateinit var etPhoneNo: EditText
-    private lateinit var etMessage: EditText
-
     @RequiresPermission(allOf = [Manifest.permission.READ_PHONE_STATE, Manifest.permission.SEND_SMS])
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        btSend = findViewById(R.id.bt_send)
-        etPhoneNo = findViewById(R.id.et_phoneNo)
-        etMessage = findViewById(R.id.et_message)
+        // Initialised the variables tied to the views here
+        // since they are not in used anywhere
+        val btSend = findViewById<Button>(R.id.bt_send)
+        val etPhoneNo = findViewById<EditText>(R.id.et_phoneNo)
+        val etMessage = findViewById<EditText>(R.id.et_message)
 
         btSend.setOnClickListener {
             val phoneNo = etPhoneNo.text?.toString()
@@ -44,6 +34,7 @@ class MainActivity : AppCompatActivity() {
             if (isPermissionGranted(this)) {
                 val intent = Intent()
                 // Default to SIM slot 1 for now
+                // This is supposed to be passed in with a value that user chooses.
                 intent.putExtra(SIM_SLOT, SIM_SLOT_ONE)
                 val smsManager = getSmsManager(this, intent)
                 smsManager?.sendTextMessage(phoneNo, null, message, null, null)
