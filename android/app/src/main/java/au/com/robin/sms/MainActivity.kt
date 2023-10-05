@@ -8,6 +8,7 @@ import android.widget.EditText
 import android.widget.Toast
 import androidx.annotation.RequiresPermission
 import androidx.appcompat.app.AppCompatActivity
+import au.com.robin.sms.develop.R
 
 // Constants
 private const val SIM_SLOT = "slot"
