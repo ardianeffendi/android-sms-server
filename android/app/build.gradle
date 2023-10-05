@@ -3,7 +3,20 @@ plugins {
     id 'org.jetbrains.kotlin.android'
 }
 
-def PACKAGE_NAME = 'au.com.robin.sms'
+/**
+ * Locate (and possibly download) a JDK used to build your kotlin
+ * source code. This also acts as a default for sourceCompatibility,
+ * targetCompatibility and jvmTarget. Note that this does not affect which JDK
+ * is used to run the Gradle build itself, and does not need to take into
+ * account the JDK version required by Gradle plugins (such as the
+ * Android Gradle Plugin)
+ */
+kotlin {
+    // Version 17 is used as since AGP (Android Gradle Plugin) 8.0 requires JDK 17.
+    jvmToolchain 17
+}
+
+def PACKAGE_NAME = 'au.com.robin.sms.develop'
 android {
     namespace PACKAGE_NAME
 
