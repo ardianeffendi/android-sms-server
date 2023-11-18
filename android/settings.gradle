@@ -5,6 +5,25 @@ pluginManagement {
         gradlePluginPortal()
     }
 }
+
+/**
+ * The org.gradle.disco-toolchains plugin provides a repository for downloading JVMs.
+ * It is based on the foojay DiscoAPI. Requires Gradle 7.6 or later to work.
+ */
+plugins {
+    id("org.gradle.toolchains.foojay-resolver") version "0.7.0"
+}
+
+toolchainManagement {
+    jvm {
+        javaRepositories {
+            repository("foojay") {
+                resolverClass = org.gradle.toolchains.foojay.FoojayToolchainResolver
+            }
+        }
+    }
+}
+
 dependencyResolutionManagement {
     repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
     repositories {

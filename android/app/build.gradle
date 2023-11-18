@@ -3,8 +3,24 @@ plugins {
     id 'org.jetbrains.kotlin.android'
 }
 
-def PACKAGE_NAME = 'au.com.robin.sms'
+/**
+ * Locate (and possibly download) a JDK used to build your kotlin
+ * source code. This also acts as a default for sourceCompatibility,
+ * targetCompatibility and jvmTarget. Note that this does not affect which JDK
+ * is used to run the Gradle build itself, and does not need to take into
+ * account the JDK version required by Gradle plugins (such as the
+ * Android Gradle Plugin)
+ */
+kotlin {
+    // Version 17 is used as since AGP (Android Gradle Plugin) 8.0 requires JDK 17.
+    jvmToolchain 17
+}
+
+def PACKAGE_NAME = 'au.com.robin.sms.develop'
 android {
+    /**
+     * The app's namespace. Used primarily to access app resources.
+     */
     namespace PACKAGE_NAME
 
     /*
@@ -12,15 +28,21 @@ android {
      */
 
     /**
-     * compileSdk is the SDK Platform version that Android uses to compile. It is purely used
-     * at compile time so it is not included in the APK. It helps generate new compiler warnings or
-     * errors.
+     * compileSdk specifies the Android API level Gradle should use to
+     * compile your app. This means your app can use the API features included in
+     * this API level and lower.
      */
     compileSdk 34
 
     defaultConfig {
+        // Declare a variable to let manifest know the package name of source set
+        manifestPlaceholders = [sourceSetPackageName:"au.com.robin.sms"]
+
+        // Uniquely identifies the package for publishing.
         applicationId PACKAGE_NAME
-        minSdk 14 // the oldest version that app can run on
+
+        // Defines the minimum API level required to run the app.
+        minSdk 14
 
         /**
          * targetSdk is used for Android system to turn on specific (new) behavior changes. For instance,
@@ -34,12 +56,23 @@ android {
          * Refer to the link below:
          * https://support.google.com/googleplay/android-developer/answer/11926878?hl=en#:~:text=App%20availability%20requirements,level%2033%20for%20Wear%20OS).
          */
-        targetSdk 34 // specifies that app has been tested up to this version
+        targetSdk 34
 
-        versionCode 1 // internal version number
+        // Defines the version number of the app.
+        versionCode 1
+
+        // Defines a user-friendly version name of the app.
         versionName "1.0"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+    }
+
+    sourceSets {
+        // Encapsulates configurations for the main source set.
+        main {
+            java.srcDirs = ['src/main/java/au/com/robin/sms']
+            res.srcDirs = ['src/main/res']
+        }
     }
 
     buildTypes {
@@ -47,13 +80,6 @@ android {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
-    }
-    compileOptions {
-        sourceCompatibility JavaVersion.VERSION_1_8
-        targetCompatibility JavaVersion.VERSION_1_8
-    }
-    kotlinOptions {
-        jvmTarget = '1.8'
     }
 }
 
