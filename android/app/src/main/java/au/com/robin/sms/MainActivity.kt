@@ -9,6 +9,7 @@ import android.widget.Toast
 import androidx.annotation.RequiresPermission
 import androidx.appcompat.app.AppCompatActivity
 import au.com.robin.sms.develop.R
+import au.com.robin.sms.service.WsConnection
 
 // Constants
 private const val SIM_SLOT = "slot"
@@ -43,6 +44,7 @@ class MainActivity : AppCompatActivity() {
                 requestPermission(this)
             }
         }
+        WsConnection().start()
     }
 
     override fun onRequestPermissionsResult(
@@ -55,5 +57,4 @@ class MainActivity : AppCompatActivity() {
             Toast.makeText(this, "Permission denied. SMS can't be sent!", Toast.LENGTH_SHORT).show()
         }
     }
-
 }
