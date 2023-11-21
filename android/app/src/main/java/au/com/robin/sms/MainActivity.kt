@@ -1,6 +1,7 @@
 package au.com.robin.sms
 
 import android.Manifest
+import android.app.AlarmManager
 import android.content.Intent
 import android.os.Bundle
 import android.widget.Button
@@ -9,6 +10,7 @@ import android.widget.Toast
 import androidx.annotation.RequiresPermission
 import androidx.appcompat.app.AppCompatActivity
 import au.com.robin.sms.develop.R
+import au.com.robin.sms.service.WsConnection
 
 // Constants
 private const val SIM_SLOT = "slot"
@@ -43,6 +45,8 @@ class MainActivity : AppCompatActivity() {
                 requestPermission(this)
             }
         }
+        val alarmManager = getSystemService(ALARM_SERVICE) as AlarmManager
+        WsConnection(alarmManager).start()
     }
 
     override fun onRequestPermissionsResult(
@@ -55,5 +59,4 @@ class MainActivity : AppCompatActivity() {
             Toast.makeText(this, "Permission denied. SMS can't be sent!", Toast.LENGTH_SHORT).show()
         }
     }
-
 }
