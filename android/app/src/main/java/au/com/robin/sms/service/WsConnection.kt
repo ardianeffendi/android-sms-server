@@ -91,8 +91,6 @@ class WsConnection(private val alarmManager: AlarmManager) : Connection {
         }
     }
 
-    // TODO(Implement function `scheduleReconnect()`)
-
     private inner class Listener : WebSocketListener() {
         override fun onOpen(webSocket: WebSocket, response: Response) {
             Log.d(TAG, "Opened connection")
