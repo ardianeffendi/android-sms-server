@@ -1,6 +1,7 @@
 package au.com.robin.sms
 
 import android.Manifest
+import android.app.AlarmManager
 import android.content.Intent
 import android.os.Bundle
 import android.widget.Button
@@ -44,7 +45,8 @@ class MainActivity : AppCompatActivity() {
                 requestPermission(this)
             }
         }
-        WsConnection().start()
+        val alarmManager = getSystemService(ALARM_SERVICE) as AlarmManager
+        WsConnection(alarmManager).start()
     }
 
     override fun onRequestPermissionsResult(

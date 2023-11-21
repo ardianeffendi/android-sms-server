@@ -1,22 +1,27 @@
 package au.com.robin.sms.service
 
+import android.app.AlarmManager
+import android.os.Build
+import android.os.Handler
+import android.os.Looper
 import android.util.Log
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.Response
 import okhttp3.WebSocket
 import okhttp3.WebSocketListener
+import java.util.Calendar
 import java.util.concurrent.TimeUnit
 
 /**
  * Modelled after ntfy-android/WsConnection.kt.
  * (https://github.com/binwiederhier/ntfy-android/blob/main/app/src/main/java/io/heckel/ntfy/service/WsConnection.kt)
  */
-class WsConnection : Connection {
+class WsConnection(private val alarmManager: AlarmManager) : Connection {
     private val SERVER_URL = "ws://192.168.1.106:8080"
     private val client = OkHttpClient.Builder().readTimeout(0, TimeUnit.MILLISECONDS)
         .connectTimeout(1, TimeUnit.MINUTES).build()
-    private var errorCount = 0
+    private var errorCount = 0 // exponential backoff strategy in handling connection failures
     private var webSocket: WebSocket? = null
     private var state: State? = null
     private var closed = false
@@ -54,6 +59,36 @@ class WsConnection : Connection {
         state = State.Disconnected
         webSocket!!.close(WS_CLOSE_NORMAL, "")
         webSocket = null
+    }
+
+    /**
+     * Schedule a restart (connection) after a certain amount of time `seconds`.
+     * For Android versions N (24) and above, schedules the restart with AlarmManager.
+     * Else, it uses a Handler associated with the main lopper to post a delayed action.
+     * @param seconds time delays in seconds
+     */
+    fun scheduleReconnect(seconds: Int) {
+        if (closed || state == State.Connecting || state == State.Connected) {
+            Log.d(TAG, "Not rescheduling because connection is marked closed/connecting/connected")
+            return
+        }
+        state = State.Scheduled
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            Log.d(TAG, "Scheduling a restart in $seconds seconds (via alarm manager)")
+            val reconnectTime = Calendar.getInstance()
+            reconnectTime.add(Calendar.SECOND, seconds)
+            alarmManager.setExact(
+                AlarmManager.RTC_WAKEUP,
+                reconnectTime.timeInMillis,
+                RECONNECT_TAG,
+                { start() },
+                null
+            )
+        } else {
+            Log.d(TAG, "Scheduling a restart in $seconds seconds (via handler)")
+            val handler = Handler(Looper.getMainLooper())
+            handler.postDelayed({ start() }, TimeUnit.SECONDS.toMillis(seconds.toLong()))
+        }
     }
 
     // TODO(Implement function `scheduleReconnect()`)
@@ -97,8 +132,9 @@ class WsConnection : Connection {
             }
             state = State.Disconnected
             errorCount++
+
             val retrySeconds = RETRY_SECONDS.getOrNull(errorCount) ?: RETRY_SECONDS.last()
-            // Call scheduleReconnect() - not yet implemented
+            scheduleReconnect(retrySeconds)
         }
     }
 
