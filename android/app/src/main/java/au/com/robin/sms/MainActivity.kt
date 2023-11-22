@@ -1,8 +1,8 @@
 package au.com.robin.sms
 
 import android.Manifest
-import android.app.AlarmManager
 import android.content.Intent
+import android.os.Build
 import android.os.Bundle
 import android.widget.Button
 import android.widget.EditText
@@ -10,7 +10,9 @@ import android.widget.Toast
 import androidx.annotation.RequiresPermission
 import androidx.appcompat.app.AppCompatActivity
 import au.com.robin.sms.develop.R
-import au.com.robin.sms.service.WsConnection
+import au.com.robin.sms.service.ServiceState
+import au.com.robin.sms.service.SubscriberService
+import au.com.robin.sms.service.getServiceState
 
 // Constants
 private const val SIM_SLOT = "slot"
@@ -45,8 +47,18 @@ class MainActivity : AppCompatActivity() {
                 requestPermission(this)
             }
         }
-        val alarmManager = getSystemService(ALARM_SERVICE) as AlarmManager
-        WsConnection(alarmManager).start()
+
+        findViewById<Button>(R.id.bt_start_service).let {
+            it.setOnClickListener {
+                actionService(SubscriberService.Actions.START)
+            }
+        }
+
+        findViewById<Button>(R.id.bt_stop_service).let {
+            it.setOnClickListener {
+                actionService(SubscriberService.Actions.STOP)
+            }
+        }
     }
 
     override fun onRequestPermissionsResult(
@@ -57,6 +69,18 @@ class MainActivity : AppCompatActivity() {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         if (requestCode != PERMISSION_REQUEST_CODE) {
             Toast.makeText(this, "Permission denied. SMS can't be sent!", Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    private fun actionService(action: SubscriberService.Actions) {
+        if (getServiceState(this) == ServiceState.STOPPED && action == SubscriberService.Actions.STOP) return
+        Intent(this, SubscriberService::class.java).also {
+            it.action = action.name
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                startForegroundService(it)
+                return
+            }
+            startService(it)
         }
     }
 }
