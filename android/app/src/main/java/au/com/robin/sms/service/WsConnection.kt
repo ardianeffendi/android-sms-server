@@ -19,8 +19,11 @@ import java.util.concurrent.TimeUnit
  */
 class WsConnection(private val alarmManager: AlarmManager) : Connection {
     private val SERVER_URL = "ws://192.168.1.106:8080"
-    private val client = OkHttpClient.Builder().readTimeout(0, TimeUnit.MILLISECONDS)
-        .connectTimeout(1, TimeUnit.MINUTES).build()
+    private val client = OkHttpClient.Builder()
+        .readTimeout(0, TimeUnit.MILLISECONDS)
+        .pingInterval(30, TimeUnit.SECONDS)
+        .connectTimeout(1, TimeUnit.MINUTES)
+        .build()
     private var errorCount = 0 // exponential backoff strategy in handling connection failures
     private var webSocket: WebSocket? = null
     private var state: State? = null
