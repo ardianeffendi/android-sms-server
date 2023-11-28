@@ -6,9 +6,28 @@
         android:name="android.hardware.telephony"
         android:required="false" />
 
+    <!-- Allows read access to phone state, including the current cellular network information -->
     <uses-permission android:name="android.permission.READ_PHONE_STATE" />
+
+    <!-- Allows sending SMS messages -->
     <uses-permission android:name="android.permission.SEND_SMS" />
+
+    <!-- Allows app to open network sockets for internet communication -->
     <uses-permission android:name="android.permission.INTERNET" />
+
+    <!-- Required for starting and running foreground services on Android devices -->
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+
+    <!-- Required for starting and running foreground services with data synchronization on Android 12 and higher -->
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_DATA_SYNC" />
+
+    <!-- Allows using PowerManager WakeLocks to keep processor from sleeping or screen from dimming -->
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
+
+    <!-- Allows the application to receive the ACTION_BOOT_COMPLETED that is broadcast after the system finishes booting -->
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED"/>
+
+
 
     <!-- TODO() Delete usesCleartextTraffic (development purposes) -->
     <application
@@ -21,14 +40,34 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.SMS"
         tools:targetApi="31">
-        <!-- sourceSetPackageName is variable in build.gradle injected here -->
-        <activity android:name="${sourceSetPackageName}.MainActivity"
+
+        <!-- sourceSetPackageName is variable in build.gradle -->
+
+        <!-- Defines the SubscriberService, a foreground service for data synchronization -->
+        <service
+            android:name="${sourceSetPackageName}.service.SubscriberService"
+            android:foregroundServiceType="dataSync"
+            android:enabled="true"
+            android:exported="false" />
+
+        <activity
+            android:name="${sourceSetPackageName}.MainActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+        <!-- Defines the StartReceiver, a receiver to start the service on device boot -->
+        <receiver
+            android:name="${sourceSetPackageName}.service.StartReceiver"
+            android:enabled="true"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+            </intent-filter>
+        </receiver>
 
     </application>
 
