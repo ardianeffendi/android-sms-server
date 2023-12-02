@@ -89,6 +89,8 @@ def materialComponentVersion = '1.9.0'
 def coreKtxVersion = '1.12.0'
 def constrainLayoutVersion = '2.1.4'
 def okHttpVersion = '4.9.1'
+def liveDataKtxVersion = '2.6.2'
+def legacySupportV4Version = '1.0.0'
 
 dependencies {
     implementation "androidx.appcompat:appcompat:$appCompatVersion"
@@ -97,6 +99,11 @@ dependencies {
     implementation "androidx.constraintlayout:constraintlayout:$constrainLayoutVersion"
     implementation "androidx.core:core-ktx:$coreKtxVersion"
     implementation "com.squareup.okhttp3:okhttp:$okHttpVersion" // Use the latest version
+
+    // LiveData
+    implementation "androidx.lifecycle:lifecycle-livedata-ktx:$liveDataKtxVersion"
+    implementation "androidx.legacy:legacy-support-v4:$legacySupportV4Version"
+
     testImplementation "junit:junit:4.13.2"
     androidTestImplementation "androidx.test.ext:junit:1.1.5"
     androidTestImplementation "androidx.test.espresso:espresso-core:3.5.1"
