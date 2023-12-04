@@ -87,6 +87,7 @@ android {
 def appCompatVersion = '1.6.1'
 def materialComponentVersion = '1.9.0'
 def coreKtxVersion = '1.12.0'
+def activityKtxVersion = '1.8.1'
 def constrainLayoutVersion = '2.1.4'
 def okHttpVersion = '4.9.1'
 def liveDataKtxVersion = '2.6.2'
@@ -96,6 +97,7 @@ dependencies {
     implementation "androidx.appcompat:appcompat:$appCompatVersion"
     implementation "com.google.android.material:material:$materialComponentVersion"
     implementation "androidx.core:core-ktx:$coreKtxVersion"
+    implementation "androidx.activity:activity-ktx:$activityKtxVersion"
     implementation "androidx.constraintlayout:constraintlayout:$constrainLayoutVersion"
     implementation "androidx.core:core-ktx:$coreKtxVersion"
     implementation "com.squareup.okhttp3:okhttp:$okHttpVersion" // Use the latest version

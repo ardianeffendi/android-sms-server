@@ -1,4 +1,4 @@
-package au.com.robin.sms
+package au.com.robin.sms.util
 
 import android.Manifest
 import android.app.Activity

@@ -14,7 +14,8 @@ import android.os.PowerManager
 import android.os.SystemClock
 import android.util.Log
 import androidx.core.app.NotificationCompat
-import au.com.robin.sms.MainActivity
+import au.com.robin.sms.ui.MainActivity
+import au.com.robin.sms.app.Application
 import au.com.robin.sms.develop.R
 
 private const val TAG = "SubscriberService"
@@ -38,6 +39,8 @@ private const val NOTIFICATION_GROUP_ID = "com.robin.sms.NOTIFICATION_GROUP_SERV
  * - https://robertohuertas.com/2019/06/29/android_foreground_services/
  */
 class SubscriberService : Service() {
+    private val repository by lazy { (application as Application).repository }
+    private var wsConnection: WsConnection? = null
     private var wakeLock: PowerManager.WakeLock? = null
     private var isServiceStarted = false
     override fun onBind(p0: Intent?): IBinder? {
@@ -130,7 +133,8 @@ class SubscriberService : Service() {
             }
         val alarmManager = getSystemService(ALARM_SERVICE) as AlarmManager
         // Open connection
-        WsConnection(alarmManager).start()
+        wsConnection = WsConnection(::onMessageReceived, alarmManager)
+        wsConnection!!.start()
     }
 
     /**
@@ -166,6 +170,7 @@ class SubscriberService : Service() {
 
         isServiceStarted = false
         setServiceState(this, ServiceState.STOPPED)
+        wsConnection?.close()
     }
 
     /**
@@ -218,6 +223,15 @@ class SubscriberService : Service() {
             .setOngoing(true) // Since Android 13, foreground notifications can be swiped away
             .setGroup(NOTIFICATION_GROUP_ID) // Do not group with other notifications
             .build()
+    }
+
+    /**
+     * Callback function invoked when a new message is received.
+     *
+     * @param text The text of the received message.
+     */
+    private fun onMessageReceived(text: String) {
+        repository.addMessage(text)
     }
 
     enum class Actions {

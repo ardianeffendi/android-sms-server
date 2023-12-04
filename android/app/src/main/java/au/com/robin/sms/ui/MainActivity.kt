@@ -1,21 +1,26 @@
-package au.com.robin.sms
+package au.com.robin.sms.ui
 
 import android.Manifest
-import android.app.AlarmManager
 import android.content.Intent
 import android.os.Build
 import android.os.Bundle
+import android.text.Editable
 import android.util.Log
 import android.widget.Button
 import android.widget.EditText
 import android.widget.Toast
+import androidx.activity.viewModels
 import androidx.annotation.RequiresPermission
 import androidx.appcompat.app.AppCompatActivity
+import au.com.robin.sms.util.PERMISSION_REQUEST_CODE
+import au.com.robin.sms.app.Application
+import au.com.robin.sms.util.arePermissionsGranted
 import au.com.robin.sms.develop.R
+import au.com.robin.sms.util.getSmsManager
 import au.com.robin.sms.service.ServiceState
 import au.com.robin.sms.service.SubscriberService
-import au.com.robin.sms.service.WsConnection
 import au.com.robin.sms.service.getServiceState
+import org.json.JSONObject
 
 // Constants
 private const val SIM_SLOT = "slot"
@@ -23,6 +28,10 @@ private const val SIM_SLOT_ONE = 0
 private const val SIM_SLOT_TWO = 1
 
 class MainActivity : AppCompatActivity() {
+    private val viewModel by viewModels<MessageViewModel> {
+        MessageViewModelFactory((application as Application).repository)
+    }
+
     @RequiresPermission(allOf = [Manifest.permission.READ_PHONE_STATE, Manifest.permission.SEND_SMS, Manifest.permission.FOREGROUND_SERVICE_DATA_SYNC])
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -34,18 +43,19 @@ class MainActivity : AppCompatActivity() {
         val etPhoneNo = findViewById<EditText>(R.id.et_phoneNo)
         val etMessage = findViewById<EditText>(R.id.et_message)
 
+
         if (arePermissionsGranted(this)) {
             findViewById<Button>(R.id.bt_start_service).let {
-                Log.d("MainActivity", "Start the foreground service on demand")
                 it.setOnClickListener {
                     actionService(SubscriberService.Actions.START)
+                    Log.d("MainActivity", "Start the foreground service on demand")
                 }
             }
 
             findViewById<Button>(R.id.bt_stop_service).let {
-                Log.d("MainActivity", "Stop the foreground service on demand")
                 it.setOnClickListener {
                     actionService(SubscriberService.Actions.STOP)
+                    Log.d("MainActivity", "Stop the foreground service on demand")
                 }
             }
 
@@ -61,7 +71,25 @@ class MainActivity : AppCompatActivity() {
                 smsManager?.sendTextMessage(phoneNo, null, message, null, null)
             }
         } else {
-            requestPermissions(this)
+            au.com.robin.sms.util.requestPermissions(this)
+        }
+
+        viewModel.message().observe(this) {
+            it?.let { msg ->
+                try {
+                    Log.d("MainActivity", msg)
+                    val json = JSONObject(msg)
+                    val phoneNo = json.getString("phoneNumber")
+                    val message = json.getString("message")
+                    etPhoneNo.text =
+                        Editable.Factory.getInstance().newEditable(phoneNo)
+                    etMessage.text =
+                        Editable.Factory.getInstance().newEditable(message)
+                } catch (e: Exception) {
+                    e.printStackTrace()
+                }
+
+            }
         }
     }
 

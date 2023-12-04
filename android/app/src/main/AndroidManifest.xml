@@ -31,6 +31,7 @@
 
     <!-- TODO() Delete usesCleartextTraffic (development purposes) -->
     <application
+        android:name="${sourceSetPackageName}.app.Application"
         android:usesCleartextTraffic="true"
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
@@ -51,7 +52,7 @@
             android:exported="false" />
 
         <activity
-            android:name="${sourceSetPackageName}.MainActivity"
+            android:name="${sourceSetPackageName}.ui.MainActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
