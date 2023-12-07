@@ -6,20 +6,22 @@ import android.os.Build
 import android.os.Bundle
 import android.text.Editable
 import android.util.Log
+import android.view.View
+import android.webkit.WebView
 import android.widget.Button
 import android.widget.EditText
 import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.annotation.RequiresPermission
 import androidx.appcompat.app.AppCompatActivity
-import au.com.robin.sms.util.PERMISSION_REQUEST_CODE
 import au.com.robin.sms.app.Application
-import au.com.robin.sms.util.arePermissionsGranted
 import au.com.robin.sms.develop.R
-import au.com.robin.sms.util.getSmsManager
 import au.com.robin.sms.service.ServiceState
 import au.com.robin.sms.service.SubscriberService
 import au.com.robin.sms.service.getServiceState
+import au.com.robin.sms.util.PERMISSION_REQUEST_CODE
+import au.com.robin.sms.util.arePermissionsGranted
+import au.com.robin.sms.util.getSmsManager
 import org.json.JSONObject
 
 // Constants
@@ -38,7 +40,7 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
 
         // Initialised the variables tied to the views here
-        // since they are not in used anywhere
+        // since they are not in use anywhere
         val btSend = findViewById<Button>(R.id.bt_send)
         val etPhoneNo = findViewById<EditText>(R.id.et_phoneNo)
         val etMessage = findViewById<EditText>(R.id.et_message)
@@ -77,7 +79,6 @@ class MainActivity : AppCompatActivity() {
         viewModel.message().observe(this) {
             it?.let { msg ->
                 try {
-                    Log.d("MainActivity", msg)
                     val json = JSONObject(msg)
                     val phoneNo = json.getString("phoneNumber")
                     val message = json.getString("message")
@@ -91,17 +92,8 @@ class MainActivity : AppCompatActivity() {
 
             }
         }
-    }
 
-    override fun onRequestPermissionsResult(
-        requestCode: Int,
-        permissions: Array<out String>,
-        grantResults: IntArray
-    ) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-        if (requestCode != PERMISSION_REQUEST_CODE) {
-            Toast.makeText(this, "Permission denied. SMS can't be sent!", Toast.LENGTH_SHORT).show()
-        }
+        webViewRequest()
     }
 
     /**
@@ -123,6 +115,37 @@ class MainActivity : AppCompatActivity() {
                 return
             }
             startService(it)
+        }
+    }
+
+    /**
+     * This function demonstrates toggling the visibility of a WebView and making a POST request to a URL.
+     */
+    private fun webViewRequest() {
+        val webView = findViewById<WebView>(R.id.webView)
+        val toggleButton = findViewById<Button>(R.id.bt_webview)
+
+        toggleButton.setOnClickListener {
+            if (webView.visibility == View.GONE) {
+                webView.visibility = View.VISIBLE
+
+                val postData = "Hello, world!"
+                val url = "http://192.168.1.106:8080/simple-post"
+                webView.postUrl(url, postData.toByteArray())
+            } else {
+                webView.visibility = View.GONE
+            }
+        }
+    }
+
+    override fun onRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<out String>,
+        grantResults: IntArray
+    ) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        if (requestCode != PERMISSION_REQUEST_CODE) {
+            Toast.makeText(this, "Permission denied. SMS can't be sent!", Toast.LENGTH_SHORT).show()
         }
     }
 }

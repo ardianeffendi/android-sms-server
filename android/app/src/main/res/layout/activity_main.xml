@@ -73,7 +73,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
-        android:text="START"
+        android:text="@string/start_service"
         app:layout_constraintStart_toStartOf="@+id/bt_send"
         app:layout_constraintTop_toBottomOf="@+id/bt_send" />
 
@@ -82,7 +82,26 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
-        android:text="STOP"
+        android:text="@string/stop_service"
         app:layout_constraintEnd_toEndOf="@+id/bt_send"
         app:layout_constraintTop_toBottomOf="@+id/bt_send" />
+
+    <WebView
+        android:id="@+id/webView"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/bt_webview" />
+
+    <Button
+        android:id="@+id/bt_webview"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/open_webview"
+        app:layout_constraintEnd_toEndOf="@+id/bt_stop_service"
+        app:layout_constraintStart_toStartOf="@+id/bt_start_service"
+        app:layout_constraintTop_toBottomOf="@+id/bt_stop_service" />
 </androidx.constraintlayout.widget.ConstraintLayout>
