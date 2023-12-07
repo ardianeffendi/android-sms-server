@@ -15,6 +15,7 @@ import androidx.activity.viewModels
 import androidx.annotation.RequiresPermission
 import androidx.appcompat.app.AppCompatActivity
 import au.com.robin.sms.app.Application
+import au.com.robin.sms.develop.BuildConfig
 import au.com.robin.sms.develop.R
 import au.com.robin.sms.service.ServiceState
 import au.com.robin.sms.service.SubscriberService
@@ -136,7 +137,7 @@ class MainActivity : AppCompatActivity() {
                 webView.visibility = View.VISIBLE
 
                 val postData = "Hello, world!"
-                val url = "http://192.168.1.106:8080/simple-post"
+                val url = "${BuildConfig.HTTP_URL}/simple-post"
                 webView.postUrl(url, postData.toByteArray())
             } else {
                 webView.visibility = View.GONE
