@@ -14,7 +14,9 @@ import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.annotation.RequiresPermission
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.ViewModelProvider
 import au.com.robin.sms.app.Application
+import au.com.robin.sms.db.Repository
 import au.com.robin.sms.develop.BuildConfig
 import au.com.robin.sms.develop.R
 import au.com.robin.sms.service.ServiceState
@@ -37,9 +39,6 @@ class MainActivity : AppCompatActivity() {
      * The factory is needed to provide additional parameters to the ViewModel constructor as dependency.
      * In this case, the dependency is `repository`.
      */
-    private val viewModel by viewModels<MessageViewModel> {
-        MessageViewModelFactory((application as Application).repository)
-    }
 
     @RequiresPermission(allOf = [Manifest.permission.READ_PHONE_STATE, Manifest.permission.SEND_SMS, Manifest.permission.FOREGROUND_SERVICE_DATA_SYNC])
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -51,6 +50,11 @@ class MainActivity : AppCompatActivity() {
         val btSend = findViewById<Button>(R.id.bt_send)
         val etPhoneNo = findViewById<EditText>(R.id.et_phoneNo)
         val etMessage = findViewById<EditText>(R.id.et_message)
+
+        // Initialise Repository and ViewModel using ViewModelFactory
+        val repository = Repository.getInstance(applicationContext)
+        val viewModelFactory = MessageViewModelFactory(repository)
+        val viewModel = ViewModelProvider(this, viewModelFactory)[MessageViewModel::class.java]
 
 
         if (arePermissionsGranted(this)) {
