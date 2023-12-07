@@ -30,6 +30,12 @@ private const val SIM_SLOT_ONE = 0
 private const val SIM_SLOT_TWO = 1
 
 class MainActivity : AppCompatActivity() {
+    /**
+     * `by viewModels` is a property delegate provided by the activity-ktx libraries.
+     * It simplifies the process of obtaining a ViewModel instance tied to the lifecycle.
+     * The factory is needed to provide additional parameters to the ViewModel constructor as dependency.
+     * In this case, the dependency is `repository`.
+     */
     private val viewModel by viewModels<MessageViewModel> {
         MessageViewModelFactory((application as Application).repository)
     }
