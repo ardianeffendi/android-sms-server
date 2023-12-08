@@ -68,7 +68,10 @@ android {
 
         multiDexEnabled true // development purposes
 
+        // Define HTTP URL variable in BuildConfig
         buildConfigField "String", "HTTP_URL", "\"http://192.168.1.106:8080\""
+
+        // Define WS URL variable in BuildConfig
         buildConfigField "String", "WS_URL", "\"ws://192.168.1.106:8080\""
     }
 
