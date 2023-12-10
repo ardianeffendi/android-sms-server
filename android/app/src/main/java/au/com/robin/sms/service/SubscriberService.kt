@@ -14,10 +14,9 @@ import android.os.PowerManager
 import android.os.SystemClock
 import android.util.Log
 import androidx.core.app.NotificationCompat
-import au.com.robin.sms.ui.MainActivity
-import au.com.robin.sms.app.Application
 import au.com.robin.sms.db.Repository
 import au.com.robin.sms.develop.R
+import au.com.robin.sms.ui.MainActivity
 
 private const val TAG = "SubscriberService"
 private const val WAKE_LOCK_TAG = "SubscriberService::lock"

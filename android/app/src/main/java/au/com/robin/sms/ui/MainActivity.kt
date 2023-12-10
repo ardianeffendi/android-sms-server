@@ -11,11 +11,9 @@ import android.webkit.WebView
 import android.widget.Button
 import android.widget.EditText
 import android.widget.Toast
-import androidx.activity.viewModels
 import androidx.annotation.RequiresPermission
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
-import au.com.robin.sms.app.Application
 import au.com.robin.sms.db.Repository
 import au.com.robin.sms.develop.BuildConfig
 import au.com.robin.sms.develop.R
