@@ -31,7 +31,6 @@
 
     <!-- TODO() Delete usesCleartextTraffic (development purposes) -->
     <application
-        android:name="${sourceSetPackageName}.app.Application"
         android:usesCleartextTraffic="true"
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"

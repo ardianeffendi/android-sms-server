@@ -14,9 +14,9 @@ import android.os.PowerManager
 import android.os.SystemClock
 import android.util.Log
 import androidx.core.app.NotificationCompat
-import au.com.robin.sms.ui.MainActivity
-import au.com.robin.sms.app.Application
+import au.com.robin.sms.db.Repository
 import au.com.robin.sms.develop.R
+import au.com.robin.sms.ui.MainActivity
 
 private const val TAG = "SubscriberService"
 private const val WAKE_LOCK_TAG = "SubscriberService::lock"
@@ -39,7 +39,7 @@ private const val NOTIFICATION_GROUP_ID = "com.robin.sms.NOTIFICATION_GROUP_SERV
  * - https://robertohuertas.com/2019/06/29/android_foreground_services/
  */
 class SubscriberService : Service() {
-    private val repository by lazy { (application as Application).repository }
+    private var repository: Repository? = null
     private var wsConnection: WsConnection? = null
     private var wakeLock: PowerManager.WakeLock? = null
     private var isServiceStarted = false
@@ -52,6 +52,7 @@ class SubscriberService : Service() {
         super.onCreate()
 
         Log.d(TAG, "Subscriber service has been created!")
+        repository = Repository.getInstance(applicationContext)
         val notification = createNotification()
         startForeground(NOTIFICATION_SERVICE_ID, notification)
     }
@@ -231,7 +232,7 @@ class SubscriberService : Service() {
      * @param text The text of the received message.
      */
     private fun onMessageReceived(text: String) {
-        repository.addMessage(text)
+        repository?.addMessage(text)
     }
 
     enum class Actions {

@@ -65,6 +65,14 @@ android {
         versionName "1.0"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+
+        multiDexEnabled true // development purposes
+
+        // Define HTTP URL variable in BuildConfig
+        buildConfigField "String", "HTTP_URL", "\"http://192.168.1.106:8080\""
+
+        // Define WS URL variable in BuildConfig
+        buildConfigField "String", "WS_URL", "\"ws://192.168.1.106:8080\""
     }
 
     sourceSets {
@@ -80,6 +88,10 @@ android {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
+    }
+
+    buildFeatures {
+        buildConfig = true
     }
 }
 

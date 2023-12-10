@@ -5,7 +5,7 @@ import android.os.Build
 import android.os.Handler
 import android.os.Looper
 import android.util.Log
-import au.com.robin.sms.db.Repository
+import au.com.robin.sms.develop.BuildConfig
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.Response
@@ -22,7 +22,7 @@ class WsConnection(
     private val messageListener: (String) -> Unit,
     private val alarmManager: AlarmManager
 ) : Connection {
-    private val SERVER_URL = "ws://192.168.1.106:8080"
+    private val SERVER_URL = BuildConfig.WS_URL
     private val client = OkHttpClient.Builder()
         .readTimeout(0, TimeUnit.MILLISECONDS)
         .pingInterval(30, TimeUnit.SECONDS)
