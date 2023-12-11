@@ -68,11 +68,24 @@ android {
 
         multiDexEnabled true // development purposes
 
+        /**
+         * To set the environment variables, do this on the same terminal session:
+         * $ export HTTP_URL="{Your URL}"
+         * $ export WS_URL="{Your URL}"
+         * $ ./gradlew clean installDebug
+         *
+         * We can use either `./gradlew assembleDebug` or `./gradlew installDebug` but
+         * the latter is more convenient as it also installs the app on the connected device
+         * right away.
+         */
+
         // Define HTTP URL variable in BuildConfig
-        buildConfigField "String", "HTTP_URL", "\"http://192.168.1.106:8080\""
+        def http_url = System.getenv("HTTP_URL") ?: "http://192.168.1.10:8080"
+        buildConfigField "String", "HTTP_URL", "\"$http_url\""
 
         // Define WS URL variable in BuildConfig
-        buildConfigField "String", "WS_URL", "\"ws://192.168.1.106:8080\""
+        def ws_url = System.getenv("WS_URL") ?: "ws://192.168.1.10:8080"
+        buildConfigField "String", "WS_URL", "\"$ws_url\""
     }
 
     sourceSets {
