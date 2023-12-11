@@ -39,7 +39,6 @@ private const val NOTIFICATION_GROUP_ID = "com.robin.sms.NOTIFICATION_GROUP_SERV
  * - https://robertohuertas.com/2019/06/29/android_foreground_services/
  */
 class SubscriberService : Service() {
-    private var repository: Repository? = null
     private var wsConnection: WsConnection? = null
     private var wakeLock: PowerManager.WakeLock? = null
     private var isServiceStarted = false
@@ -52,17 +51,20 @@ class SubscriberService : Service() {
         super.onCreate()
 
         Log.d(TAG, "Subscriber service has been created!")
-        repository = Repository.getInstance(applicationContext)
         val notification = createNotification()
         startForeground(NOTIFICATION_SERVICE_ID, notification)
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         Log.d(TAG, "onStartCommand executed with startId: $startId")
+
+        // Initialise repository
+        val repository = Repository.getInstance(applicationContext)
+
         if (intent != null) {
             Log.d(TAG, "Using an intent with action ${intent.action}")
             when (intent.action) {
-                Actions.START.name -> startService()
+                Actions.START.name -> startService(repository)
                 Actions.STOP.name -> stopService()
                 else -> Log.w(TAG, "This should never happen. No action in the received intent")
             }
@@ -118,7 +120,7 @@ class SubscriberService : Service() {
      * Note: A wake lock is acquired to ensure that the device remains active and the service can perform its tasks,
      * even when the device is in a low-power state. The wake lock is released when the service is stopped.
      */
-    private fun startService() {
+    private fun startService(repository: Repository) {
         if (isServiceStarted) return
 
         Log.d(TAG, "Starting the foreground service task")
@@ -132,10 +134,10 @@ class SubscriberService : Service() {
                     acquire()
                 }
             }
-        val alarmManager = getSystemService(ALARM_SERVICE) as AlarmManager
         // Open connection
-        wsConnection = WsConnection(::onMessageReceived, alarmManager)
-        wsConnection!!.start()
+        val alarmManager = getSystemService(ALARM_SERVICE) as AlarmManager
+        wsConnection = WsConnection({ text: String -> repository.addMessage(text)}, alarmManager)
+        wsConnection?.start()
     }
 
     /**
@@ -224,15 +226,6 @@ class SubscriberService : Service() {
             .setOngoing(true) // Since Android 13, foreground notifications can be swiped away
             .setGroup(NOTIFICATION_GROUP_ID) // Do not group with other notifications
             .build()
-    }
-
-    /**
-     * Callback function invoked when a new message is received.
-     *
-     * @param text The text of the received message.
-     */
-    private fun onMessageReceived(text: String) {
-        repository?.addMessage(text)
     }
 
     enum class Actions {

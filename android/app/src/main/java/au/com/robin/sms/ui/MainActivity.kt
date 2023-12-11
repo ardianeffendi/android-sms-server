@@ -23,6 +23,7 @@ import au.com.robin.sms.service.getServiceState
 import au.com.robin.sms.util.PERMISSION_REQUEST_CODE
 import au.com.robin.sms.util.arePermissionsGranted
 import au.com.robin.sms.util.getSmsManager
+import au.com.robin.sms.util.requestPermissions
 import org.json.JSONObject
 
 // Constants
@@ -82,7 +83,7 @@ class MainActivity : AppCompatActivity() {
                 smsManager?.sendTextMessage(phoneNo, null, message, null, null)
             }
         } else {
-            au.com.robin.sms.util.requestPermissions(this)
+            requestPermissions(this)
         }
 
         viewModel.message().observe(this) {
