@@ -72,23 +72,9 @@ class Repository(private val sharedPrefs: SharedPreferences) {
         fun getInstance(context: Context): Repository {
             // Create a SharedPreferences instance using the provided context
             val sharedPrefs = context.getSharedPreferences(SHARED_PREFS_ID, Context.MODE_PRIVATE)
-            // Return the instance of Repository
-            return getInstance(sharedPrefs)
-        }
-
-        /**
-         * Gets a synchronized instance of the [Repository] using SharedPreferences.
-         *
-         * @param sharedPrefs The [SharedPreferences] instance.
-         * @return A synchronized instance of the [Repository].
-         */
-        private fun getInstance(sharedPrefs: SharedPreferences): Repository {
-            return synchronized(Repository::class) {
-                // Create a new instance if it does not exist, or return the existing one
-                val newInstance = instance ?: Repository(sharedPrefs)
-                instance = newInstance
-                newInstance
-            }
+            val newInstance = instance ?: Repository(sharedPrefs)
+            instance = newInstance
+            return newInstance
         }
     }
 }
