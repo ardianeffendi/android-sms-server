@@ -5,6 +5,7 @@ import android.os.Build
 import android.os.Handler
 import android.os.Looper
 import android.util.Log
+import au.com.robin.sms.develop.BuildConfig
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.Response
@@ -17,10 +18,16 @@ import java.util.concurrent.TimeUnit
  * Modelled after ntfy-android/WsConnection.kt.
  * (https://github.com/binwiederhier/ntfy-android/blob/main/app/src/main/java/io/heckel/ntfy/service/WsConnection.kt)
  */
-class WsConnection(private val alarmManager: AlarmManager) : Connection {
-    private val SERVER_URL = "ws://192.168.1.106:8080"
-    private val client = OkHttpClient.Builder().readTimeout(0, TimeUnit.MILLISECONDS)
-        .connectTimeout(1, TimeUnit.MINUTES).build()
+class WsConnection(
+    private val messageListener: (String) -> Unit,
+    private val alarmManager: AlarmManager
+) : Connection {
+    private val SERVER_URL = BuildConfig.WS_URL
+    private val client = OkHttpClient.Builder()
+        .readTimeout(0, TimeUnit.MILLISECONDS)
+        .pingInterval(30, TimeUnit.SECONDS)
+        .connectTimeout(1, TimeUnit.MINUTES)
+        .build()
     private var errorCount = 0 // exponential backoff strategy in handling connection failures
     private var webSocket: WebSocket? = null
     private var state: State? = null
@@ -101,8 +108,8 @@ class WsConnection(private val alarmManager: AlarmManager) : Connection {
         }
 
         override fun onMessage(webSocket: WebSocket, text: String) {
-            Log.d(TAG, "Received message: $text")
-            // TODO(Implement a callback to pass the message to UI)
+            Log.d(TAG, text)
+            messageListener(text)
         }
 
         override fun onClosed(webSocket: WebSocket, code: Int, reason: String) {

@@ -14,8 +14,9 @@ import android.os.PowerManager
 import android.os.SystemClock
 import android.util.Log
 import androidx.core.app.NotificationCompat
-import au.com.robin.sms.MainActivity
+import au.com.robin.sms.db.Repository
 import au.com.robin.sms.develop.R
+import au.com.robin.sms.ui.MainActivity
 
 private const val TAG = "SubscriberService"
 private const val WAKE_LOCK_TAG = "SubscriberService::lock"
@@ -38,6 +39,7 @@ private const val NOTIFICATION_GROUP_ID = "com.robin.sms.NOTIFICATION_GROUP_SERV
  * - https://robertohuertas.com/2019/06/29/android_foreground_services/
  */
 class SubscriberService : Service() {
+    private var wsConnection: WsConnection? = null
     private var wakeLock: PowerManager.WakeLock? = null
     private var isServiceStarted = false
     override fun onBind(p0: Intent?): IBinder? {
@@ -55,10 +57,14 @@ class SubscriberService : Service() {
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         Log.d(TAG, "onStartCommand executed with startId: $startId")
+
+        // Initialise repository
+        val repository = Repository.getInstance(applicationContext)
+
         if (intent != null) {
             Log.d(TAG, "Using an intent with action ${intent.action}")
             when (intent.action) {
-                Actions.START.name -> startService()
+                Actions.START.name -> startService(repository)
                 Actions.STOP.name -> stopService()
                 else -> Log.w(TAG, "This should never happen. No action in the received intent")
             }
@@ -114,7 +120,7 @@ class SubscriberService : Service() {
      * Note: A wake lock is acquired to ensure that the device remains active and the service can perform its tasks,
      * even when the device is in a low-power state. The wake lock is released when the service is stopped.
      */
-    private fun startService() {
+    private fun startService(repository: Repository) {
         if (isServiceStarted) return
 
         Log.d(TAG, "Starting the foreground service task")
@@ -128,9 +134,10 @@ class SubscriberService : Service() {
                     acquire()
                 }
             }
-        val alarmManager = getSystemService(ALARM_SERVICE) as AlarmManager
         // Open connection
-        WsConnection(alarmManager).start()
+        val alarmManager = getSystemService(ALARM_SERVICE) as AlarmManager
+        wsConnection = WsConnection({ text: String -> repository.addMessage(text)}, alarmManager)
+        wsConnection?.start()
     }
 
     /**
@@ -166,6 +173,7 @@ class SubscriberService : Service() {
 
         isServiceStarted = false
         setServiceState(this, ServiceState.STOPPED)
+        wsConnection?.close()
     }
 
     /**

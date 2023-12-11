@@ -1,21 +1,30 @@
-package au.com.robin.sms
+package au.com.robin.sms.ui
 
 import android.Manifest
-import android.app.AlarmManager
 import android.content.Intent
 import android.os.Build
 import android.os.Bundle
+import android.text.Editable
 import android.util.Log
+import android.view.View
+import android.webkit.WebView
 import android.widget.Button
 import android.widget.EditText
 import android.widget.Toast
 import androidx.annotation.RequiresPermission
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.ViewModelProvider
+import au.com.robin.sms.db.Repository
+import au.com.robin.sms.develop.BuildConfig
 import au.com.robin.sms.develop.R
 import au.com.robin.sms.service.ServiceState
 import au.com.robin.sms.service.SubscriberService
-import au.com.robin.sms.service.WsConnection
 import au.com.robin.sms.service.getServiceState
+import au.com.robin.sms.util.PERMISSION_REQUEST_CODE
+import au.com.robin.sms.util.arePermissionsGranted
+import au.com.robin.sms.util.getSmsManager
+import au.com.robin.sms.util.requestPermissions
+import org.json.JSONObject
 
 // Constants
 private const val SIM_SLOT = "slot"
@@ -23,29 +32,42 @@ private const val SIM_SLOT_ONE = 0
 private const val SIM_SLOT_TWO = 1
 
 class MainActivity : AppCompatActivity() {
+    /**
+     * `by viewModels` is a property delegate provided by the activity-ktx libraries.
+     * It simplifies the process of obtaining a ViewModel instance tied to the lifecycle.
+     * The factory is needed to provide additional parameters to the ViewModel constructor as dependency.
+     * In this case, the dependency is `repository`.
+     */
+
     @RequiresPermission(allOf = [Manifest.permission.READ_PHONE_STATE, Manifest.permission.SEND_SMS, Manifest.permission.FOREGROUND_SERVICE_DATA_SYNC])
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
         // Initialised the variables tied to the views here
-        // since they are not in used anywhere
+        // since they are not in use anywhere
         val btSend = findViewById<Button>(R.id.bt_send)
         val etPhoneNo = findViewById<EditText>(R.id.et_phoneNo)
         val etMessage = findViewById<EditText>(R.id.et_message)
 
+        // Initialise Repository and ViewModel using ViewModelFactory
+        val repository = Repository.getInstance(applicationContext)
+        val viewModelFactory = MessageViewModelFactory(repository)
+        val viewModel = ViewModelProvider(this, viewModelFactory)[MessageViewModel::class.java]
+
+
         if (arePermissionsGranted(this)) {
             findViewById<Button>(R.id.bt_start_service).let {
-                Log.d("MainActivity", "Start the foreground service on demand")
                 it.setOnClickListener {
                     actionService(SubscriberService.Actions.START)
+                    Log.d("MainActivity", "Start the foreground service on demand")
                 }
             }
 
             findViewById<Button>(R.id.bt_stop_service).let {
-                Log.d("MainActivity", "Stop the foreground service on demand")
                 it.setOnClickListener {
                     actionService(SubscriberService.Actions.STOP)
+                    Log.d("MainActivity", "Stop the foreground service on demand")
                 }
             }
 
@@ -63,17 +85,25 @@ class MainActivity : AppCompatActivity() {
         } else {
             requestPermissions(this)
         }
-    }
 
-    override fun onRequestPermissionsResult(
-        requestCode: Int,
-        permissions: Array<out String>,
-        grantResults: IntArray
-    ) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-        if (requestCode != PERMISSION_REQUEST_CODE) {
-            Toast.makeText(this, "Permission denied. SMS can't be sent!", Toast.LENGTH_SHORT).show()
+        viewModel.message().observe(this) {
+            it?.let { msg ->
+                try {
+                    val json = JSONObject(msg)
+                    val phoneNo = json.getString("phoneNumber")
+                    val message = json.getString("message")
+                    etPhoneNo.text =
+                        Editable.Factory.getInstance().newEditable(phoneNo)
+                    etMessage.text =
+                        Editable.Factory.getInstance().newEditable(message)
+                } catch (e: Exception) {
+                    e.printStackTrace()
+                }
+
+            }
         }
+
+        webViewRequest()
     }
 
     /**
@@ -95,6 +125,37 @@ class MainActivity : AppCompatActivity() {
                 return
             }
             startService(it)
+        }
+    }
+
+    /**
+     * This function demonstrates toggling the visibility of a WebView and making a POST request to a URL.
+     */
+    private fun webViewRequest() {
+        val webView = findViewById<WebView>(R.id.webView)
+        val toggleButton = findViewById<Button>(R.id.bt_webview)
+
+        toggleButton.setOnClickListener {
+            if (webView.visibility == View.GONE) {
+                webView.visibility = View.VISIBLE
+
+                val postData = "Hello, world!"
+                val url = "${BuildConfig.HTTP_URL}/simple-post"
+                webView.postUrl(url, postData.toByteArray())
+            } else {
+                webView.visibility = View.GONE
+            }
+        }
+    }
+
+    override fun onRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<out String>,
+        grantResults: IntArray
+    ) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        if (requestCode != PERMISSION_REQUEST_CODE) {
+            Toast.makeText(this, "Permission denied. SMS can't be sent!", Toast.LENGTH_SHORT).show()
         }
     }
 }

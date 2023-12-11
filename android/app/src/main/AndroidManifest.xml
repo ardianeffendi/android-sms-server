@@ -51,7 +51,7 @@
             android:exported="false" />
 
         <activity
-            android:name="${sourceSetPackageName}.MainActivity"
+            android:name="${sourceSetPackageName}.ui.MainActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

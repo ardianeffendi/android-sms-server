@@ -3,4 +3,7 @@
     <string name="phone_no">Phone No</string>
     <string name="message">Message</string>
     <string name="send">Send</string>
+    <string name="start_service">START</string>
+    <string name="stop_service">STOP</string>
+    <string name="open_webview">WebView</string>
 </resources>
